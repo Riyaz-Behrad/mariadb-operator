@@ -16,6 +16,25 @@ import (
 
 var _ = Describe("Backup webhook", func() {
 	Context("When creating a Backup", func() {
+		It("Should accept pigz compression", func() {
+			backup := &v1alpha1.Backup{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "backup-pigz",
+					Namespace: testNamespace,
+				},
+				Spec: v1alpha1.BackupSpec{
+					MariaDBRef: v1alpha1.MariaDBRef{
+						ObjectReference: v1alpha1.ObjectReference{Name: "mariadb-webhook"},
+					},
+					Compression: v1alpha1.CompressPigz,
+					Storage: v1alpha1.BackupStorage{
+						S3: &v1alpha1.S3{Bucket: "test", Endpoint: "test"},
+					},
+				},
+			}
+			Expect(k8sClient.Create(testCtx, backup)).To(Succeed())
+		})
+
 		DescribeTable(
 			"Should validate",
 			func(backup *v1alpha1.Backup, wantErr bool) {

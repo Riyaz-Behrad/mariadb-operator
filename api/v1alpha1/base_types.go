@@ -805,14 +805,17 @@ const (
 	CompressBzip2 CompressAlgorithm = "bzip2"
 	// Gzip compression. Good compression/decompression speed, but worse compression ratio compared to bzip2.
 	CompressGzip CompressAlgorithm = "gzip"
+	// Pigz compression. Parallel gzip compression producing gzip-compatible files.
+	CompressPigz CompressAlgorithm = "pigz"
 )
 
 func (c CompressAlgorithm) Validate() error {
 	switch c {
-	case CompressAlgorithm(""), CompressNone, CompressBzip2, CompressGzip:
+	case CompressAlgorithm(""), CompressNone, CompressBzip2, CompressGzip, CompressPigz:
 		return nil
 	default:
-		return fmt.Errorf("invalid compression: %v, supported algorithms: [%v|%v|%v]", c, CompressNone, CompressBzip2, CompressGzip)
+		return fmt.Errorf("invalid compression: %v, supported algorithms: [%v|%v|%v|%v]",
+			c, CompressNone, CompressBzip2, CompressGzip, CompressPigz)
 	}
 }
 
@@ -822,10 +825,11 @@ func (c CompressAlgorithm) Extension() (string, error) {
 		return "", nil
 	case CompressBzip2:
 		return "bz2", nil
-	case CompressGzip:
+	case CompressGzip, CompressPigz:
 		return "gz", nil
 	default:
-		return "", fmt.Errorf("invalid compression: %v, supported algorithms: [%v|%v|%v]", c, CompressNone, CompressBzip2, CompressGzip)
+		return "", fmt.Errorf("invalid compression: %v, supported algorithms: [%v|%v|%v|%v]",
+			c, CompressNone, CompressBzip2, CompressGzip, CompressPigz)
 	}
 }
 

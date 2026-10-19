@@ -182,8 +182,9 @@ type PhysicalBackupSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Target *PhysicalBackupTarget `json:"target,omitempty"`
 	// Compression algorithm to be used in the Backup.
+	// Use "pigz" for parallel gzip compression producing gzip-compatible files.
 	// +optional
-	// +kubebuilder:validation:Enum=none;bzip2;gzip
+	// +kubebuilder:validation:Enum=none;bzip2;gzip;pigz
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Compression CompressAlgorithm `json:"compression,omitempty"`
 	// StagingStorage defines the temporary storage used to keep external backups (i.e. S3) while they are being processed.

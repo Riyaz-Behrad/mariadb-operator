@@ -120,6 +120,7 @@ It is very important to note that, by default, backups will only be scheduled if
 When using physical backups based on `mariadb-backup`, you are able to choose the compression algorithm used to compress the backup files. The available options are:
 - `bzip2`: Good compression ratio, but slower compression/decompression speed compared to gzip.
 - `gzip`: Good compression/decompression speed, but worse compression ratio compared to bzip2.
+- `pigz`: Parallel gzip compression using multiple CPU cores. Produces gzip-compatible `.gz` files.
 - `none`: No compression.
 
 To specify the compression algorithm, you can use the `compression` field in the `PhysicalBackup` resource:
@@ -136,6 +137,11 @@ spec:
 ```
 
 `compression` is defaulted to `none` by the operator.
+
+Set `spec.compression: pigz` to enable parallel compression. The operator image includes the `pigz` binary.
+The number of compression workers follows Go's `GOMAXPROCS`, which accounts for the backup container's CPU limit.
+Allocate multiple CPUs via `spec.resources` to benefit from parallel compression.
+Backups use the same `.xb.gz` extension as `gzip` and are restored automatically using the existing gzip decompressor.
 
 ## Server-Side Encryption with Customer-Provided Keys (SSE-C) For S3
 

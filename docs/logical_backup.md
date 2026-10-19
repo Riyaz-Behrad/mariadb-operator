@@ -169,9 +169,16 @@ spec:
 Currently the following compression algorithms are supported:
 - `bzip2`: Good compression ratio, but slower compression/decompression speed compared to gzip.
 - `gzip`: Good compression/decompression speed, but worse compression ratio compared to bzip2.
+- `pigz`: Parallel gzip compression using multiple CPU cores. Produces gzip-compatible `.gz` files.
 - `none`: No compression.
 
 `compression` is defaulted to `none` by the operator.
+
+Set `spec.compression: pigz` to enable parallel compression. The operator image includes the `pigz` binary.
+The number of compression workers follows Go's `GOMAXPROCS`, which accounts for the backup container's CPU limit.
+Allocate multiple CPUs to the backup via `spec.resources` to benefit from parallel compression.
+Backups use the same `.sql.gz` extension as `gzip` and are restored automatically using the existing gzip decompressor.
+See the [pigz backup example](../examples/manifests/backup_pigz.yaml).
 
 #### Server-Side Encryption with Customer-Provided Keys (SSE-C)
 

@@ -97,7 +97,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&absPrefix, "abs-prefix", "", "ABS container prefix to use.")
 
 	RootCmd.PersistentFlags().StringVar(&compression, "compression", string(mariadbv1alpha1.CompressNone),
-		"Compression algorithm: none, gzip or bzip2.")
+		"Compression algorithm: none, gzip, bzip2 or pigz.")
 
 	RootCmd.PersistentFlags().StringVar(&physicalBackupDirPath, "physical-backup-dir-path", "",
 		"Directory path where the physical backup is located. Only considered when backup-content-type is Physical.")

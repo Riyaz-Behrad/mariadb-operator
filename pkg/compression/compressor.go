@@ -5,6 +5,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os/exec"
+	"runtime"
+	"strconv"
 
 	"github.com/dsnet/compress/bzip2"
 	mariadbv1alpha1 "github.com/mariadb-operator/mariadb-operator/v26/api/v1alpha1"
@@ -22,6 +25,8 @@ func NewCompressor(calg mariadbv1alpha1.CompressAlgorithm) (Compressor, error) {
 		return &NopCompressor{}, nil
 	case mariadbv1alpha1.CompressGzip:
 		return &GzipCompressor{}, nil
+	case mariadbv1alpha1.CompressPigz:
+		return &PigzCompressor{}, nil
 	case mariadbv1alpha1.CompressBzip2:
 		return &Bzip2Compressor{}, nil
 	default:
@@ -58,6 +63,23 @@ func (c *GzipCompressor) Decompress(ctx context.Context, dst io.Writer, src io.R
 	defer gzipReader.Close()
 	_, err = io.Copy(dst, reader.NewContextReader(ctx, gzipReader))
 	return err
+}
+
+// PigzCompressor uses pigz for parallel compression and gzip for decompression.
+// Both compressors produce the same gzip format, so restores need no special handling.
+type PigzCompressor struct {
+	GzipCompressor
+}
+
+func (c *PigzCompressor) Compress(ctx context.Context, dst io.Writer, src io.Reader) error {
+	// GOMAXPROCS accounts for container CPU limits, unlike pigz's default CPU detection.
+	cmd := exec.CommandContext(ctx, "pigz", "-c", "-p", strconv.Itoa(runtime.GOMAXPROCS(0)))
+	cmd.Stdin = reader.NewContextReader(ctx, src)
+	cmd.Stdout = dst
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error compressing with pigz: %w", err)
+	}
+	return nil
 }
 
 type Bzip2Compressor struct{}

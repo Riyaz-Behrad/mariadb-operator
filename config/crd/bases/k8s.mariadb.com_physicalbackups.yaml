@@ -69,11 +69,14 @@ spec:
                 format: int32
                 type: integer
               compression:
-                description: Compression algorithm to be used in the Backup.
+                description: |-
+                  Compression algorithm to be used in the Backup.
+                  Use "pigz" for parallel gzip compression producing gzip-compatible files.
                 enum:
                 - none
                 - bzip2
                 - gzip
+                - pigz
                 type: string
               failedJobsHistoryLimit:
                 description: FailedJobsHistoryLimit defines the maximum number of
